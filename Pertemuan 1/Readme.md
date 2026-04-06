@@ -1,6 +1,6 @@
 1.5 Pertanyaan Praktikum
 
-1. Pada kondisi apa program masuk ke blok if? Program akan memasuki blok if ketika variabel timeDelay bernilai kurang dari atau sama dengan 100 (<= 100>). Kondisi ini tercapai setelah durasi delay berkurang secara progresif dari 1000ms hingga mencapai batas minimum. Pada tahap ini, program akan melakukan reset sistem dengan memberikan jeda statis selama 3 detik sebelum mengembalikan timeDelay ke nilai awal (1000ms).
+1. Pada kondisi apa program masuk ke blok if? Program akan memasuki blok if ketika variabel timeDelay bernilai kurang dari atau sama dengan 100 (<= 100). Kondisi ini tercapai setelah durasi delay berkurang secara progresif dari 1000ms hingga mencapai batas minimum. Pada tahap ini, program akan melakukan reset sistem dengan memberikan jeda statis selama 3 detik sebelum mengembalikan timeDelay ke nilai awal (1000ms).
 
 2. Pada kondisi apa program masuk ke blok else?  Blok else dieksekusi selama nilai timeDelay masih di atas 100. Di dalam blok ini, program menjalankan rutinitas pengurangan nilai variabel sebesar 100ms pada setiap akhir siklus kedip. Hal ini mengakibatkan frekuensi kedipan LED meningkat secara bertahap (semakin cepat) di setiap iterasinya.
 
