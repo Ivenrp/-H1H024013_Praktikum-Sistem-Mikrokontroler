@@ -1,15 +1,21 @@
 # Modul 2 – Pemrograman GPIO
+<img width="1366" height="1057" alt="Screenshot 2026-04-13 115908" src="https://github.com/user-attachments/assets/d0bae735-1274-4e2e-a9cd-bbe10416c92a" />
+
 ___
 
-Nama: Iven Rival Pangestu
-NIM : H1H024013
-SHIFT : A
+## 👤 Data Praktikan
+- **Nama:** Iven Rival Pangestu
+- **NIM:** H1H024013
+- **Shift:** A
 ___
 
 ## 2.5.4 Pertanyaan Praktikum 
-1. Gambarkan rangkaian schematic yang digunakan pada percobaan! 
-![alt text](7segmen-1.png)
-2. Apa yang terjadi jika nilai num lebih dari 15? 
+1. Gambarkan rangkaian schematic yang digunakan pada percobaan!
+
+   <img width="688" height="429" alt="7segmen-1" src="https://github.com/user-attachments/assets/108cca5c-409c-44ae-9994-726e5339e27e" />
+
+   
+3. Apa yang terjadi jika nilai num lebih dari 15? 
 
 Berdasarkan logika program, array digitPattern memiliki indeks maksimal 15 (0-F). Jika nilai num lebih dari 15 tanpa ada pembatasan logika, program akan mencoba mengakses memori di luar batas array (index out of bounds), yang dapat menyebabkan tampilan segmen menjadi tidak menentu atau program mengalami crash. Namun, pada hasil percobaan, sistem dirancang untuk kembali ke 0 (looping) setelah mencapai F.
 
@@ -22,61 +28,94 @@ Pada tipe Common Anode, segmen akan menyala (aktif) ketika pin output Arduino me
 4. Modifikasi program agar tampilan berjalan dari F ke 0 dan berikan penjelasan disetiap 
 baris kode nya dalam bentuk README.md!
 
-![alt text](image-3.png)
+<img width="1366" height="1057" alt="image-3" src="https://github.com/user-attachments/assets/365b95f6-f92e-4602-97f0-b7374c4cd6cc" />
+# Proyek Seven Segment Hexadecimal Counter (Countdown)
 
+Kode ini digunakan untuk menampilkan angka hexadecimal (0-F) secara hitung mundur (countdown) menggunakan Seven Segment **Common Anode**.
+
+## Skema Pin
+| Segmen | Pin Arduino |
+|--------|-------------|
+| a      | 7           |
+| b      | 6           |
+| c      | 5           |
+| d      | 10          |
+| e      | 11          |
+| f      | 8           |
+| g      | 9           |
+| DP     | 4           |
+
+## Kode Program
+
+```cpp
 #include <Arduino.h>
-// Mapping pin segmen: a  b  c   d   e  f  g  dp
+
+// Mapping pin segmen: a, b, c, d, e, f, g, dp
 const int segmentPins[8] = {7, 6, 5, 10, 11, 8, 9, 4};
-// Mendefinisikan 8 pin Arduino yang terhubung ke setiap segmen Seven Segment Display.
-// Urutan: a=7, b=6, c=5, d=10, e=11, f=8, g=9, dp=4
 
-// Alias nama pin agar kode lebih mudah dibaca
-#define pinA  segmentPins[0]   // Pin untuk segmen a (atas)
-#define pinB  segmentPins[1]   // Pin untuk segmen b (kanan atas)
-#define pinC  segmentPins[2]   // Pin untuk segmen c (kanan bawah)
-#define pinD  segmentPins[3]   // Pin untuk segmen d (bawah)
-#define pinE  segmentPins[4]   // Pin untuk segmen e (kiri bawah)
-#define pinF  segmentPins[5]   // Pin untuk segmen f (kiri atas)
-#define pinG  segmentPins[6]   // Pin untuk segmen g (tengah)
-#define pinDP segmentPins[7]   // Pin untuk segmen dp (titik)
+// Alias nama pin untuk keterbacaan
+#define pinA  segmentPins[0]
+#define pinB  segmentPins[1]
+#define pinC  segmentPins[2]
+#define pinD  segmentPins[3]
+#define pinE  segmentPins[4]
+#define pinF  segmentPins[5]
+#define pinG  segmentPins[6]
+#define pinDP segmentPins[7]
 
-// Pola bit untuk setiap karakter heksadesimal (urutan: a b c d e f g)
-// Nilai 1 = segmen ON, nilai 0 = segmen OFF
-// Perangkat: Common Anode → ON = LOW, OFF = HIGH
+/**
+ * Pola bit untuk karakter heksadesimal (0-F)
+ * Urutan: {a, b, c, d, e, f, g}
+ * Perangkat: Common Anode (1 = ON/LOW, 0 = OFF/HIGH)
+ */
 byte hexPatterns[16][7] = {
-  {1, 1, 1, 1, 1, 1, 0}, // 0 → a,b,c,d,e,f menyala; g mati
-  {0, 1, 1, 0, 0, 0, 0}, // 1 → hanya b,c menyala
-  {1, 1, 0, 1, 1, 0, 1}, // 2 → a,b,d,e,g menyala
-  {1, 1, 1, 1, 0, 0, 1}, // 3 → a,b,c,d,g menyala
-  {0, 1, 1, 0, 0, 1, 1}, // 4 → b,c,f,g menyala
-  {1, 0, 1, 1, 0, 1, 1}, // 5 → a,c,d,f,g menyala
-  {1, 0, 1, 1, 1, 1, 1}, // 6 → a,c,d,e,f,g menyala
-  {1, 1, 1, 0, 0, 0, 0}, // 7 → a,b,c menyala
-  {1, 1, 1, 1, 1, 1, 1}, // 8 → semua segmen menyala
-  {1, 1, 1, 1, 0, 1, 1}, // 9 → a,b,c,d,f,g menyala
-  {1, 1, 1, 0, 1, 1, 1}, // A → a,b,c,e,f,g menyala
-  {0, 0, 1, 1, 1, 1, 1}, // b → c,d,e,f,g menyala
-  {1, 0, 0, 1, 1, 1, 0}, // C → a,d,e,f menyala
-  {0, 1, 1, 1, 1, 0, 1}, // d → b,c,d,e,g menyala
-  {1, 0, 0, 1, 1, 1, 1}, // E → a,d,e,f,g menyala
-  {1, 0, 0, 0, 1, 1, 1}  // F → a,e,f,g menyala
+  {1, 1, 1, 1, 1, 1, 0}, // 0
+  {0, 1, 1, 0, 0, 0, 0}, // 1
+  {1, 1, 0, 1, 1, 0, 1}, // 2
+  {1, 1, 1, 1, 0, 0, 1}, // 3
+  {0, 1, 1, 0, 0, 1, 1}, // 4
+  {1, 0, 1, 1, 0, 1, 1}, // 5
+  {1, 0, 1, 1, 1, 1, 1}, // 6
+  {1, 1, 1, 0, 0, 0, 0}, // 7
+  {1, 1, 1, 1, 1, 1, 1}, // 8
+  {1, 1, 1, 1, 0, 1, 1}, // 9
+  {1, 1, 1, 0, 1, 1, 1}, // A
+  {0, 0, 1, 1, 1, 1, 1}, // b
+  {1, 0, 0, 1, 1, 1, 0}, // C
+  {0, 1, 1, 1, 1, 0, 1}, // d
+  {1, 0, 0, 1, 1, 1, 1}, // E
+  {1, 0, 0, 0, 1, 1, 1}  // F
 };
 
-// Deklarasi fungsi displayHex sebelum digunakan
 void displayHex(int num);
 
 void setup() {
   // Inisialisasi semua pin sebagai OUTPUT
-  // Dilakukan satu kali saat Arduino dinyalakan
   for (int i = 0; i < 8; i++) {
     pinMode(segmentPins[i], OUTPUT);
-    // Gunakan loop agar lebih efisien daripada menulis 8 baris pinMode
+    digitalWrite(segmentPins[i], HIGH); // Matikan semua (Common Anode)
   }
+}
+
+void loop() {
+  // Countdown dari F (15) ke 0
+  for (int i = 15; i >= 0; i--) {
+    displayHex(i);
+    delay(1000); 
+  }
+}
+
+void displayHex(int num) {
+  // Menampilkan pola berdasarkan index num
+  digitalWrite(pinA, hexPatterns[num][0] ? LOW : HIGH);
+  digitalWrite(pinB, hexPatterns[num][1] ? LOW : HIGH);
+  digitalWrite(pinC, hexPatterns[num][2] ? LOW : HIGH);
+  digitalWrite(pinD, hexPatterns[num][3] ? LOW : HIGH);
+  digitalWrite(pinE, hexPatterns[num][4] ? LOW : HIGH);
+  digitalWrite(pinF, hexPatterns[num][5] ? LOW : HIGH);
+  digitalWrite(pinG, hexPatterns[num][6] ? LOW : HIGH);
   
-  // Matikan semua segmen di awal (HIGH = mati pada Common Anode)
-  for (int i = 0; i < 8; i++) {
-    digitalWrite(segmentPins[i], HIGH);
-  }
+  digitalWrite(pinDP, HIGH); // DP selalu mati
 }
 
 void loop() {
@@ -116,9 +155,9 @@ void displayHex(int num) {
 
 
 ## 2.6.4 Pertanyaan Praktikum 
-1. Gambarkan rangkaian schematic yang digunakan pada percobaan! 
-
-![alt text](image-1.png)
+1. Gambarkan rangkaian schematic yang digunakan pada percobaan!
+   
+<img width="1060" height="657" alt="image-1" src="https://github.com/user-attachments/assets/15a0a94e-b960-44dd-b2e2-1ba2fb265d4b" />
 
 2. Mengapa pada push button digunakan mode INPUT_PULLUP pada Arduino Uno? 
 Apa keuntungannya dibandingkan rangkaian biasa? 
@@ -135,24 +174,47 @@ Sisi Software: Kesalahan pendefinisian nomor pin pada array segmentPins atau kes
 penambahan (increment) dan pengurangan (decrement) pada sistem counter dan 
 berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
 
-![alt text](image.png)
+<img width="1366" height="1057" alt="Screenshot 2026-04-13 115908" src="https://github.com/user-attachments/assets/81a82879-1683-4e75-8816-9040819cc970" />
 
+# Proyek 7-Segment Hexadecimal Up/Down Counter
+
+Proyek ini menggunakan Arduino untuk membuat penghitung (counter) bilangan Hexadecimal (0-F). Angka dapat ditambah atau dikurangi secara manual menggunakan dua tombol push button.
+
+## Fitur Utama
+- **Tombol Up**: Menambah angka (0 → F, lalu kembali ke 0).
+- **Tombol Down**: Mengurangi angka (F → 0, lalu kembali ke F).
+- **Debounce Handling**: Mencegah input ganda saat tombol ditekan.
+- **Common Anode Support**: Logika output dibalik (`!`) agar sesuai dengan display Common Anode.
+
+## Skema Pin & Komponen
+
+| Komponen | Pin Arduino | Deskripsi |
+| :--- | :---: | :--- |
+| **Seven Segment** | 7, 6, 5, 11, 10, 8, 9, 4 | Pin a, b, c, d, e, f, g, dp |
+| **Tombol UP** | 2 | Menggunakan Internal Pull-up |
+| **Tombol DOWN** | 3 | Menggunakan Internal Pull-up |
+
+## Kode Program (Arduino IDE)
+
+```cpp
 #include <Arduino.h>
-// Mendefinisikan urutan pin untuk segmen: a, b, c, d, e, f, g, dp
+
+// Mapping pin segmen: a, b, c, d, e, f, g, dp
 const int segmentPins[8] = {7, 6, 5, 11, 10, 8, 9, 4};
 
-// Pin untuk tombol penambah dan pemurang
+// Pin untuk tombol navigasi
 const int btnUp = 2;   
 const int btnDown = 3; 
 
-// Variabel penyimpan angka counter (0-15)
+// Variabel kontrol
 int counter = 0;
-
-// Menyimpan status terakhir tombol untuk mendeteksi perubahan (edge detection)
 bool lastUpState = HIGH;
 bool lastDownState = HIGH;
 
-// Matriks pola biner untuk angka 0-F (1 = Segmen Menyala, 0 = Mati)
+/**
+ * Matriks pola biner untuk angka 0-F
+ * 1 = Segmen Menyala, 0 = Mati
+ */
 byte digitPattern[16][8] = {
   {1,1,1,1,1,1,0,0}, // 0
   {0,1,1,0,0,0,0,0}, // 1
@@ -172,57 +234,15 @@ byte digitPattern[16][8] = {
   {1,0,0,0,1,1,1,0}  // F
 };
 
-/**
- * Fungsi untuk mengirim data ke 7-segment
- * Karena menggunakan Common Anode, logika dibalik menggunakan operator '!'
- */
-void displayDigit(int num) {
-  for(int i=0; i<8; i++) {
-    digitalWrite(segmentPins[i], !digitPattern[num][i]);
-  }
-}
+void displayDigit(int num);
 
 void setup() {
-  // Mengatur semua pin segmen sebagai OUTPUT
+  // Setup Pin Segmen
   for(int i=0; i<8; i++) {
     pinMode(segmentPins[i], OUTPUT);
   }
 
-  // Menggunakan INPUT_PULLUP agar tidak memerlukan resistor eksternal pada tombol
-  pinMode(btnUp, INPUT_PULLUP);
-  pinMode(btnDown, INPUT_PULLUP);
-
-  // Menampilkan angka awal (0)
-  displayDigit(counter);
-}
-
-void loop() {
-  // Membaca status tombol saat ini
-  bool currentUp = digitalRead(btnUp);
-  bool currentDown = digitalRead(btnDown);
-
-  // Logika untuk tombol INCREMENT (Tambah)
-  // Mendeteksi transisi dari HIGH ke LOW (tombol ditekan)
-  if (lastUpState == HIGH && currentUp == LOW) {
-    counter++;
-    if(counter > 15) counter = 0; // Reset ke 0 jika lebih dari F
-    displayDigit(counter);
-    delay(200); // Debounce untuk menghindari pembacaan ganda
-  }
-
-  // Logika untuk tombol DECREMENT (Kurang)
-  if (lastDownState == HIGH && currentDown == LOW) {
-    counter--;
-    if(counter < 0) counter = 15; // Lanjut ke F jika kurang dari 0
-    displayDigit(counter);
-    delay(200); // Debounce
-  }
-
-  // Simpan status tombol saat ini untuk iterasi berikutnya
-  lastUpState = currentUp;
-  lastDownState = currentDown;
-}
-
+  // Setup Tombol dengan Internal
 
 ## 2.7 Pertanyaan Praktikum 
 1. Uraikan hasil tugas pada praktikum yang telah dilakukan pada setiap percobaan! 
